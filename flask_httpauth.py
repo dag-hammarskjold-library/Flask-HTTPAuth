@@ -11,7 +11,7 @@ This module provides Basic and Digest HTTP authentication for Flask routes.
 from functools import wraps
 from hashlib import md5
 from random import Random, SystemRandom
-from flask import request, make_response, session
+from flask import request, make_response, session, current_app
 from werkzeug.datastructures import Authorization
 from werkzeug.security import safe_str_cmp
 
@@ -89,6 +89,9 @@ class HTTPAuth(object):
         @wraps(f)
         def decorated(*args, **kwargs):
             auth = self.get_auth()
+
+            if current_app.config.get('LOGIN_DISABLED'):
+                return f(*args, **kwargs)
 
             # Flask normally handles OPTIONS requests on its own, but in the
             # case it is configured to forward those to the application, we
